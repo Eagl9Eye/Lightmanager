@@ -1,0 +1,17 @@
+{
+  "name": "lightmanager",
+  "version": "1.0.0",
+  "description": "Webserver to provide marker-status updates as AIO Control status.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js --port 5000 --host 0.0.0.0  --origin \"http://192.168.178.53/params.json\" --naming ./test.json"
+  },
+  "author": "EagleEye",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "yargs": "^16.0.3"
+  }
+}
