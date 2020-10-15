@@ -53,6 +53,7 @@ app.get('/params', async function(req, res) {
     console.log("visited on: " + Date().toString());
 });
 
+console.log("Starting service!" + Date().toString());
 console.log(`Origin is set as: ${URL}`);
 
 app.listen(PORT, function() {
