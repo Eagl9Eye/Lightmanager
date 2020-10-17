@@ -1,97 +1,124 @@
-const express = require('express');
-const fs = require('fs');
-const HTMLparser = require('node-html-parser');
+const log = require("./log")("Server");
+
+const express = require("express");
+const fs = require("fs");
+const HTMLparser = require("node-html-parser");
 const bodyParser = require("body-parser");
-const { argv } = require('yargs')
-    .option('port', {
-        alias: 'p',
-        describe: 'provide the port where the server will be aviable'
-    })
-    .option('host', {
-        alias: 'h',
-        describe: 'provide the host address of the server'
-    })
-    .default('port', 8000, '(8000)')
-    .default('host', "0.0.0.0", '(this IP-address)')
-    .help();
-const fetch = require('node-fetch');
+const propertiesReader = require("properties-reader");
+const { argv } = require("yargs")
+  .option("port", {
+    alias: "p",
+    describe: "provide the port where the server will be aviable"
+  })
+  .option("host", {
+    alias: "h",
+    describe: "provide the host address of the server"
+  })
+  .default("port", 8000, "(8000)")
+  .default("host", "0.0.0.0", "(this IP-address)")
+  .help();
+const fetch = require("node-fetch");
 var HOST = argv.host,
-    PORT = argv.port,
-    config = "./config.json"
+  PORT = argv.port,
+  config_path = "./config.properties";
 app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 async function getOriginalasJSON(url) {
-    return await (fetch(url).then(res => res.json()));
+  return await fetch(url).then(res => res.json());
 }
 
 async function getOriginalasText(url) {
-    return await (fetch(url).then(res => res.text()));
+  return await fetch(url).then(res => res.text());
 }
 
 function processParams(params, names) {
-    let res = {};
-    params["marker state"].split("").forEach((c, i) => res[names[i] ? names[i] : i + 1] = c)
-    return res;
+  let res = {};
+  params["marker state"]
+    .split("")
+    .forEach((c, i) => (res[names[i] ? names[i] : i + 1] = c));
+  return res;
 }
 
 function processNames(html) {
-    const root = HTMLparser.parse(html);
-    var names = {};
-    root.querySelectorAll('.mk').forEach(n => names[n.id.slice(1)] = n.innerText)
-    return names;
+  const root = HTMLparser.parse(html);
+  var names = {};
+  root
+    .querySelectorAll(".mk")
+    .forEach(n => (names[n.id.slice(1)] = n.innerText));
+  return names;
 }
-
-function getOrigin() {
-    try {
-        obj = JSON.parse(fs.readFileSync(config, 'utf8'));
-        return obj.origin;
-    } catch (e) { console.error(e); throw 404; }
-}
-
-async function setOrigin(newOrigin) {
-    if (!newOrigin) { return 404; }
-    const jsonString = JSON.stringify({ origin: newOrigin })
-
-    return new Promise(function (resolve, reject) {
-        fs.writeFile(config, jsonString, err => {
-            if (err) {
-                reject(404);
-            }
-            else {
-                resolve(200)
-            }
-        });
-    });
-}
-
-app.post('/server', async function (req, res) {
-    let status = await setOrigin(req.body.origin);
-    if(status == 200){
-        console.log(`New origin is set to: ${req.body.origin}`)}
-    res.sendStatus(status);
-})
-
-app.get('/params', async function (req, res) {
-    let URL;
-    process.stdout.write("visited on: " + Date().toString() + "[");
-    try {
-        URL = getOrigin();
-        var params = await getOriginalasJSON(URL + "/params.json")
-        var html = await getOriginalasText(URL)
-        res.send(processParams(params, processNames(html)));
-        console.log(URL + "]")
-    } catch (e) {
-        res.sendStatus(404)
-        console.log("failed]")
+function checkFile(path) {
+  fs.access(path, fs.constants.F_OK | fs.constants.W_OK, err => {
+    if (err) {
+      fs.open(path, "w+", function(err, f) {
+        log.warn("New Config created!");
+        if (err) {
+          throw 404;
+        }
+      });
     }
+  });
+}
+
+async function setProperty(name, value, reader = undefined) {
+  checkFile(config_path);
+  reader = reader || propertiesReader(config_path);
+  reader.set(name, value);
+  await reader.save(config_path);
+  return value;
+}
+
+async function getProperty(name, value = "") {
+  checkFile(config_path);
+  var properties = propertiesReader(config_path),
+    property = properties.get(name);
+  if (!property) {
+    return await setProperty(
+      name,
+      value || "change address from /server",
+      properties
+    );
+  } else {
+    return property;
+  }
+}
+
+async function updateConfig(config) {
+  // muss allgemeiner werden
+  if (!config) {
+    return 400;
+  }
+  return setProperty("origin", config.origin) ? 200 : 400;
+}
+
+app.post("/server", async function(req, res) {
+  log.info(`Config Update: ${JSON.stringify(req.body)}`);
+  let status = await updateConfig(req.body);
+  res.sendStatus(status);
 });
 
-console.log("Starting service!" + Date().toString());
-console.log("Origin is set as:");
-try { console.log("\t" + getOrigin()); } catch (e) { }
+app.get("/params", async function(req, res) {
+  let URL;
+  process.stdout.write("visited[");
+  try {
+    URL = await getProperty("origin", "");
+    var params = await getOriginalasJSON(URL + "/params.json");
+    var html = await getOriginalasText(URL);
+    res.send(processParams(params, processNames(html)));
+    log.info(URL + "]");
+  } catch (e) {
+    res.sendStatus(404);
+    log.info("failed]");
+  }
+});
 
-app.listen(PORT, function () {
-    console.log(`Listening on ${HOST}:${PORT}`);
+log.info("Starting service!");
+getProperty("origin")
+  .then(prop => log.info("Origin is set as:\t[" + prop + "]"))
+  .catch(e => log.error("Failed to access the config"));
+
+app.listen(PORT, function() {
+  log.info(`Listening on ${HOST}:${PORT}`);
 });
