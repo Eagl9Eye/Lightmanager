@@ -92,7 +92,7 @@ async function getProperty(name, value = "") {
 
 async function updateConfig(config) {
     // muss allgemeiner werden
-    if (!config) {
+    if (!config || !config.origin) {
         return 400;
     }
     return setProperty("origin", config.origin) ? 200 : 400;
