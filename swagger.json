@@ -1,0 +1,273 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "version": "1.0.0",
+    "title": "Lightmanager parameter converter",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "host": "test.host:8080",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/params": {
+      "get": {
+        "tags": [
+          "parameter"
+        ],
+        "summary": "Get parameters",
+        "description": "Get the manipulated parameters from the configured origin machine",
+        "responses": {
+          "200": {
+            "description": "Parameters are returned",
+            "schema": {
+              "$ref": "#/definitions/Parameters"
+            }
+          }
+        }
+      }
+    },
+    "/server": {
+      "post": {
+        "tags": [
+          "server"
+        ],
+        "summary": "Changes the config of the server",
+        "description": "Multiple status values can be provided with comma separated strings",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "New Origin",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Origin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Config not found or no argument to change"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Parameters": {
+      "type": "object",
+      "properties": {
+        "1": {
+          "type": "string"
+        },
+        "2": {
+          "type": "string"
+        },
+        "3": {
+          "type": "string"
+        },
+        "4": {
+          "type": "string"
+        },
+        "5": {
+          "type": "string"
+        },
+        "6": {
+          "type": "string"
+        },
+        "7": {
+          "type": "string"
+        },
+        "8": {
+          "type": "string"
+        },
+        "9": {
+          "type": "string"
+        },
+        "10": {
+          "type": "string"
+        },
+        "11": {
+          "type": "string"
+        },
+        "12": {
+          "type": "string"
+        },
+        "13": {
+          "type": "string"
+        },
+        "14": {
+          "type": "string"
+        },
+        "15": {
+          "type": "string"
+        },
+        "16": {
+          "type": "string"
+        },
+        "17": {
+          "type": "string"
+        },
+        "18": {
+          "type": "string"
+        },
+        "19": {
+          "type": "string"
+        },
+        "20": {
+          "type": "string"
+        },
+        "21": {
+          "type": "string"
+        },
+        "22": {
+          "type": "string"
+        },
+        "23": {
+          "type": "string"
+        },
+        "24": {
+          "type": "string"
+        },
+        "25": {
+          "type": "string"
+        },
+        "26": {
+          "type": "string"
+        },
+        "27": {
+          "type": "string"
+        },
+        "28": {
+          "type": "string"
+        },
+        "29": {
+          "type": "string"
+        },
+        "30": {
+          "type": "string"
+        },
+        "31": {
+          "type": "string"
+        },
+        "32": {
+          "type": "string"
+        },
+        "33": {
+          "type": "string"
+        },
+        "34": {
+          "type": "string"
+        },
+        "35": {
+          "type": "string"
+        },
+        "36": {
+          "type": "string"
+        },
+        "37": {
+          "type": "string"
+        },
+        "38": {
+          "type": "string"
+        },
+        "39": {
+          "type": "string"
+        },
+        "40": {
+          "type": "string"
+        },
+        "41": {
+          "type": "string"
+        },
+        "42": {
+          "type": "string"
+        },
+        "43": {
+          "type": "string"
+        },
+        "44": {
+          "type": "string"
+        },
+        "45": {
+          "type": "string"
+        },
+        "46": {
+          "type": "string"
+        },
+        "47": {
+          "type": "string"
+        },
+        "48": {
+          "type": "string"
+        },
+        "49": {
+          "type": "string"
+        },
+        "50": {
+          "type": "string"
+        },
+        "51": {
+          "type": "string"
+        },
+        "52": {
+          "type": "string"
+        },
+        "53": {
+          "type": "string"
+        },
+        "54": {
+          "type": "string"
+        },
+        "55": {
+          "type": "string"
+        },
+        "56": {
+          "type": "string"
+        },
+        "57": {
+          "type": "string"
+        },
+        "58": {
+          "type": "string"
+        },
+        "59": {
+          "type": "string"
+        },
+        "60": {
+          "type": "string"
+        },
+        "61": {
+          "type": "string"
+        },
+        "62": {
+          "type": "string"
+        },
+        "63": {
+          "type": "string"
+        },
+        "64": {
+          "type": "string"
+        }
+      }
+    },
+    "Origin": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "example": "http://new.origin"
+        }
+      }
+    }
+  }
+}
