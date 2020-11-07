@@ -2,7 +2,6 @@ const log = require("./log")("Server");
 
 const swagger_ui = require("swagger-ui-express");
 const swagger_docu = require("./swagger.json");
-const ip = require("ip");
 const express = require("express");
 const fs = require("fs");
 const HTMLparser = require("node-html-parser");
@@ -21,14 +20,31 @@ const { argv } = require("yargs")
     .default("host", "0.0.0.0", "(this IP-address)")
     .help();
 const fetch = require("node-fetch");
+const { networkInterfaces } = require('os');
+const nets = networkInterfaces();
+const possible_addresses = Object.create(null); // or just '{}', an empty object
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+        if (net.family === 'IPv4' && !net.internal) {
+            if (!possible_addresses[name]) {
+                possible_addresses[name] = [];
+            }
+
+            possible_addresses[name].push(net.address);
+        }
+    }
+}
+
 var HOST = argv.host,
     PORT = argv.port,
     config_path = "./config.properties";
+local_ipaddress = possible_addresses["eth0"][0];
 app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-swagger_docu.host = ip.address() + ":" + PORT;
+swagger_docu.host = local_ipaddress + ":" + PORT;
 
 async function getOriginalasJSON(url) {
     return await fetch(url).then(res => res.json());
