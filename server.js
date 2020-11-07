@@ -20,7 +20,7 @@ const { argv } = require("yargs")
     .default("host", "0.0.0.0", "(this IP-address)")
     .help();
 const fetch = require("node-fetch");
-var HOST = argv.host,
+var HOST = argv.host.split(' ')[0],
     PORT = argv.port,
     config_path = "./config.properties";
 app = express();
