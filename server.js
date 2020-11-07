@@ -16,16 +16,10 @@ const { argv } = require("yargs")
         alias: "h",
         describe: "provide the host address of the server"
     })
-    .option("interface", {
-        alias: "i",
-        describe: "provide the host interface of the server"
-    })
     .default("port", 8000, "(8000)")
-    .default("interface", "eth0", "(eth0)")
     .default("host", "0.0.0.0", "(this IP-address)")
     .help();
 const fetch = require("node-fetch");
-const localip = require('local-ip')(argv.interface);
 var HOST = argv.host,
     PORT = argv.port,
     config_path = "./config.properties";
@@ -33,7 +27,7 @@ app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-swagger_docu.host = localip + ":" + PORT;
+swagger_docu.host = HOST + ":" + PORT;
 
 async function getOriginalasJSON(url) {
     return await fetch(url).then(res => res.json());
