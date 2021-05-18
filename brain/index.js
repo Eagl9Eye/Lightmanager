@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const winston = require("winston");
+const logger = require("./util/log")(module);
 // routes
 const indexRouter = require("./routes/index");
 
@@ -33,14 +34,5 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
-const logger = require("./util/log")(module);
-logger.debug("Debug an object", { make: "Ford", model: "Mustang", year: 1969 });
-logger.info("Information", {
-  options: ["Lorem ipsum", "dolor sit amet"],
-  values: ["Donec augue eros, ultrices."],
-});
-logger.warn("Warning");
-logger.error(new Error("Unexpected error"));
 
 module.exports = app;
