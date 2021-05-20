@@ -1,6 +1,14 @@
 const { format, transports, createLogger } = require("winston");
-const { combine, padLevels, colorize, timestamp, label, prettyPrint, json } =
-  format;
+const {
+  printf,
+  combine,
+  padLevels,
+  colorize,
+  timestamp,
+  label,
+  prettyPrint,
+  align,
+} = format;
 const { consoleFormat } = require("winston-console-format");
 const ignore = format((info, opts) => {
   if (info.private) {
@@ -14,12 +22,13 @@ const getLabel = (module) => {
 
 const getOptions = (module) => {
   return {
-    format: combine(ignore(), timestamp(), prettyPrint(), json()),
+    format: combine(ignore(), timestamp(), prettyPrint()),
     transports: [
       new transports.Console({
         level: process.env.NODE_ENV === "production" ? "error" : "debug",
         format: combine(
           colorize({ all: true }),
+          align(),
           padLevels(),
           consoleFormat({
             showMeta: true,
@@ -37,7 +46,10 @@ const getOptions = (module) => {
       new transports.File({
         filename: `../log/debug.${new Date().toISOString().split("T")[0]}.log`,
         level: "debug",
-        format: combine(label({ label: getLabel(module) }), json()),
+        format: combine(
+          label({ label: getLabel(module) }),
+          printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+        ),
       }),
     ],
     exceptionHandlers: [

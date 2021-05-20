@@ -2,16 +2,16 @@ const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
 const cors = require("cors");
-const winston = require("winston");
+const commonError = require("./errors/commonError");
+const morganMiddleware = require("./util/morganMiddleware");
 const logger = require("./util/log")(module);
 // routes
 const indexRouter = require("./routes/index");
 
 const app = express();
 app.use(cors());
-app.use(morgan("combined", { stream: winston.stream }));
+app.use(morganMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -25,14 +25,6 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
-});
+app.use(commonError);
 
 module.exports = app;
