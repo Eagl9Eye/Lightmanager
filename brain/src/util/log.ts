@@ -1,4 +1,5 @@
-const { format, transports, createLogger } = require("winston");
+import { format, transports, createLogger } from "winston";
+const { consoleFormat } = require("winston-console-format");
 const {
   printf,
   combine,
@@ -9,18 +10,15 @@ const {
   prettyPrint,
   align,
 } = format;
-const { consoleFormat } = require("winston-console-format");
-const ignore = format((info, opts) => {
-  if (info.private) {
-    return false;
-  }
+const ignore = format((info) => {
+  if (info.private) return false;
   return info;
 });
-const getLabel = (module) => {
+const getLabel = (module: NodeModule) => {
   return module.filename;
 };
 
-const getOptions = (module) => {
+const getOptions = (module: NodeModule) => {
   return {
     format: combine(ignore(), timestamp(), prettyPrint()),
     transports: [
@@ -62,7 +60,7 @@ const getOptions = (module) => {
   };
 };
 
-const logger = (module) => {
+const logger = (module: NodeModule) => {
   return createLogger(getOptions(module));
 };
 
@@ -72,4 +70,4 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-module.exports = logger;
+export default logger;
