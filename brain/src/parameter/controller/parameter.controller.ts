@@ -2,10 +2,9 @@ import { Request, Response } from "express";
 import addressService from "../service/address.service";
 import mappingService from "../service/mapping.service";
 import { Parameter } from "../../@types/params";
-import logger from "../../util/log";
+import log from "../../util/log";
 import { toObj } from "../../util/converter";
 import fetch from "node-fetch";
-const log = logger(module);
 
 export async function viewParameter(req: Request, res: Response) {
   const mapping: Map<number, string> = await mappingService.getMapping();

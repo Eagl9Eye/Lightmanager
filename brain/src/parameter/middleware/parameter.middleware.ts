@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import mappingService from "../service/mapping.service";
 import fetch from "node-fetch";
-import logger from "../../util/log";
-const log = logger(module);
+import log from "../../util/log";
 
 export async function validateMarker(req: Request, res: Response, next: NextFunction) {
   if (req.body.id <= 64 && req.body.id >= 0) next();

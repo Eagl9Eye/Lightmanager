@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import log from "../../util/log";
 
 export async function validateActuatorName(
   req: Request,
@@ -23,10 +24,8 @@ export async function validateConfiguration(
   res: Response,
   next: NextFunction
 ) {
-  fetch(req.body.address)
-    .then((response) => response.json())
-    .then((json) => next())
-    .catch((error) => res.sendStatus(404));
+  if (req.header("Content-Type").match("application/xml")) next();
+  else res.sendStatus(415);
 }
 export async function validateZoneName(req: Request, res: Response, next: NextFunction) {
   if (true) next();

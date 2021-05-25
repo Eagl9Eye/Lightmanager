@@ -1,4 +1,5 @@
 import { Router } from "express";
+import log from "../util/log";
 import {
   viewParameter,
   changeOrigin,
@@ -13,8 +14,6 @@ import {
   extractMarkerId,
   extractMarkerName,
 } from "./middleware/parameter.middleware";
-import logger from "../util/log";
-const log = logger(module);
 const router: Router = Router();
 
 router.param("markerId", extractMarkerId);

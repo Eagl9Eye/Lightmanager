@@ -9,10 +9,9 @@ import defaultErrorMiddleware from "./default/middleware/error.middleware";
 import defaultRouter from "./default/default.routes.config";
 import parameterRouter from "./parameter/parameter.routes.config";
 import generatedRouter from "./generated/generated.routes.config";
-import logger from "./util/log";
+import log from "./util/log";
 import { Server, createServer } from "http";
 import { port } from "./config";
-const log = logger(module);
 
 const app = express();
 const server: Server = createServer(app);

@@ -1,7 +1,6 @@
 import { AddressDto } from "../dto/address.dto";
 import db from "../../database/low.database";
-import logger from "../../util/log";
-const log = logger(module);
+import log from "../../util/log";
 
 // TODO wait for lowdb to be fixed and then add the functions
 export async function getAddress() {

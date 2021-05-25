@@ -60,12 +60,10 @@ const getOptions = (module: NodeModule) => {
   };
 };
 
-const logger = (module: NodeModule) => {
-  return createLogger(getOptions(module));
-};
+const logger = createLogger(getOptions(module));
 
 if (process.env.NODE_ENV !== "production") {
-  logger(module).debug({
+  logger.debug({
     message: "Logging initialized at debug level",
   });
 }

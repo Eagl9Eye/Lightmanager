@@ -1,8 +1,6 @@
 import morgan from "morgan";
 import { Request, Response } from "express";
-import logger from "./log";
-
-const log = logger(module);
+import log from "./log";
 
 const stream = { write: (msg: string) => log.http(msg.slice(0, -1)) };
 const skip = () => {
