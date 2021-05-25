@@ -1,6 +1,7 @@
-import { format, transports, createLogger } from "winston";
+import winston, { format, transports, createLogger } from "winston";
 const { consoleFormat } = require("winston-console-format");
 const {
+  errors,
   printf,
   combine,
   padLevels,
@@ -27,6 +28,7 @@ const getOptions = (module: NodeModule) => {
         format: combine(
           colorize({ all: true }),
           align(),
+          errors({ stack: true }),
           padLevels(),
           consoleFormat({
             showMeta: true,
@@ -43,7 +45,7 @@ const getOptions = (module: NodeModule) => {
       }),
       new transports.File({
         filename: `../log/debug.${new Date().toISOString().split("T")[0]}.log`,
-        level: "debug",
+        level: "info",
         format: combine(
           label({ label: getLabel(module) }),
           printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
@@ -52,9 +54,7 @@ const getOptions = (module: NodeModule) => {
     ],
     exceptionHandlers: [
       new transports.File({
-        filename: `../log/exceptions.${
-          new Date().toISOString().split("T")[0]
-        }.log`,
+        filename: `../log/exceptions.${new Date().toISOString().split("T")[0]}.log`,
       }),
     ],
   };
@@ -69,5 +69,9 @@ if (process.env.NODE_ENV !== "production") {
     message: "Logging initialized at debug level",
   });
 }
+
+export const logMapElements = (log: winston.Logger) => (value: any, key: any) => {
+  log.debug(`m[${key}] = ${value}`);
+};
 
 export default logger;

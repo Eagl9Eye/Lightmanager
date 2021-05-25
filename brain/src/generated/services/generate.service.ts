@@ -1,5 +1,5 @@
-import { CRUD } from "../../default/interfaces/crud.interface";
-import { DeviceDto } from "../dto/device.dto";
+import { CRUD } from "../../default/interface/crud.interface";
+import { ActuatorDto } from "../dto/actuator.dto";
 import {
   getDevices,
   createDevice,
@@ -7,19 +7,19 @@ import {
   patchDevice,
   readDevice,
   deleteDevice,
-} from "../daos/devices.dao";
+} from "../dao/devices.dao";
 
-class GenerateService implements CRUD<DeviceDto> {
+class GenerateService implements CRUD<ActuatorDto> {
   async list(limit?: number, page?: number) {
     return getDevices();
   }
-  async create(resource: DeviceDto) {
+  async create(resource: ActuatorDto) {
     return createDevice(resource);
   }
-  async update(resource: DeviceDto) {
+  async update(resource: ActuatorDto) {
     return updateDevice(resource);
   }
-  async patch(resource: DeviceDto) {
+  async patch(resource: ActuatorDto) {
     return patchDevice(resource);
   }
   async readById(resourceId: string) {

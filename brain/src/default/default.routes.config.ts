@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { defaultAction } from "./controllers/DefaultController";
+import { defaultAction } from "./controller/DefaultController";
 const router: Router = Router();
 
 router.route("/").get(defaultAction);
