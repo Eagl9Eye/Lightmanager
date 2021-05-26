@@ -15,9 +15,5 @@ export async function getId(name: string) {
 }
 export async function changeName(id: number, name: string) {
   log.info(`Changed Marker(${id}) to "${name}"`);
-  return new Map([
-    [1, "Name für 1"],
-    [2, "name für 2"],
-    [10, "name für 10"],
-  ]);
+  return db.get("parameterMapping").value();
 }
