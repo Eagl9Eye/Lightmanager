@@ -1,7 +1,7 @@
 import { Router } from "express";
-import log from "../util/log";
 import {
   viewParameter,
+  viewMapping,
   changeOrigin,
   changeMarkerName,
   viewParameterByName,
@@ -21,8 +21,9 @@ router.param("markerName", extractMarkerName);
 
 router.route("/parameter").get(viewParameter).post(validateOrigin, changeOrigin);
 router.route("/parameter/:markerName").all(validateMarkerName).get(viewParameterByName);
+router.route("/parameterManager").get(viewMapping);
 router
-  .route("/parameter/:markerId")
+  .route("/parameterManager/:markerId")
   .all(validateMarker)
   .put(validateNewMarkerName, changeMarkerName);
 

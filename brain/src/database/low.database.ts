@@ -4,10 +4,15 @@ import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import log from "../util/log";
 
+export interface Mapping {
+  id: number;
+  name: string;
+}
+
 export interface Database {
   devices: Array<Actuator>;
   parameterOrigin: string;
-  parameterMapping: Map<number, string>;
+  parameterMapping: Array<Mapping>;
 }
 class DB {
   db: lowdb.LowdbSync<Database>;
@@ -17,6 +22,7 @@ class DB {
   private async init() {
     const adapter = new FileSync<Database>(config.name);
     this.db = lowdb(adapter);
+    this.db.read();
     await this.db
       .defaults({
         devices: [],
@@ -24,7 +30,6 @@ class DB {
         parameterMapping: [],
       })
       .write();
-    log.debug("parameterOrigin:", this.db.get("parameterOrigin").value());
   }
 }
 export default new DB().db;

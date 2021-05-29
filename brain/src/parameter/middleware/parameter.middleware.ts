@@ -30,7 +30,9 @@ export async function validateNewMarkerName(
   else res.sendStatus(406);
 }
 export async function extractMarkerId(req: Request, res: Response, next: NextFunction) {
-  req.body.id = +req.params.markerId || -1;
+  let id = +req.params.markerId;
+  if (id === null) id = -1;
+  req.body.id = id;
   next();
 }
 export async function extractMarkerName(req: Request, res: Response, next: NextFunction) {
