@@ -23,8 +23,8 @@ app.use(cookieParser());
 app.use(xmlparser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(defaultRouter);
-app.use(generatedRouter);
-app.use(parameterRouter);
+app.use("/v1", generatedRouter);
+app.use("/v1", parameterRouter);
 // default route
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(createHttpError(404));

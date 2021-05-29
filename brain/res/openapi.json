@@ -1,0 +1,696 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Dokumentation der Schnittstelle für die Konfiguration von LightProcessor, eine Erweiterung für den Lightmanager Air um die Überwachung von Tasmoata-Geräten und anderen Http-basierten Kommunikationen, sowie der Verarbeitung der `params.json` Datei.",
+    "version": "1.0.2",
+    "title": "Sunrise LightProcessor",
+    "contact": {
+      "email": "jan.hartig@gmx.de"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:{port}/v1",
+      "description": "Lokal",
+      "variables": {
+        "port": {
+          "default": "8080",
+          "description": "Port"
+        }
+      }
+    },
+    {
+      "url": "http://{address}:{port}/v1",
+      "description": "Eigener Server",
+      "variables": {
+        "address": {
+          "default": "192.168.172.20",
+          "description": "Adresse des Backends"
+        },
+        "port": {
+          "default": "8080",
+          "description": "Port"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/parameter": {
+      "get": {
+        "tags": [
+          "Parameter"
+        ],
+        "summary": "Abruf Parameter",
+        "description": "Gibt die verarbeitete `params.json` zurück",
+        "responses": {
+          "200": {
+            "description": "`params.json`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parameter"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lightmanager nicht verfügbar"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Parameter"
+        ],
+        "summary": "Herkunft Parameter",
+        "description": "Legt die Adresse der `params.json` fest",
+        "requestBody": {
+          "description": "Address",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Adresse geändert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Adresse ungültig/ Resource nicht abrufbar"
+          }
+        }
+      }
+    },
+    "/parameter/{markerName}": {
+      "get": {
+        "tags": [
+          "Parameter"
+        ],
+        "summary": "Bestimmter Marker",
+        "description": "Wert eines bestimmten Markers `markerName` bekommen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "markerName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Name des Markers"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wert des Markers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "markerName": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Marker nicht gefunden"
+          }
+        }
+      }
+    },
+    "/parameterManager": {
+      "get": {
+        "tags": [
+          "Parameter"
+        ],
+        "summary": "Mapping abrufen",
+        "description": "Alle zugeordneten Namen für MarkerIds",
+        "responses": {
+          "200": {
+            "description": "Name geändert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Mapping"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parameterManager/{markerId}": {
+      "put": {
+        "tags": [
+          "Parameter"
+        ],
+        "summary": "Name ändern",
+        "description": "Name des Parameters `markerId` ändern",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "markerId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID des Markers"
+          }
+        ],
+        "requestBody": {
+          "description": "Neuer Name des Markers",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newName": {
+                    "type": "string",
+                    "example": "neuer Name für Marker 2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Name geändert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Mapping"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Marker nicht gefunden"
+          },
+          "406": {
+            "description": "Name ungültig"
+          }
+        }
+      }
+    },
+    "/generation": {
+      "get": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Abruf alle Geräte",
+        "description": "Alle verfügbaren Geräte abrufen",
+        "responses": {
+          "200": {
+            "description": "Alle Geräte",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Actuator"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightman"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Geräte auslesen",
+        "description": "Geräte aus einer `config.xml` auslesen und als aktuelle Geräte übernehmen",
+        "requestBody": {
+          "description": "`config.xml`",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/lightman"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Geräte wurden eingelesen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Actuator"
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Datei konnte nicht verarbeitet werden"
+          },
+          "415": {
+            "description": "Kein xml-Format übertragen"
+          }
+        }
+      }
+    },
+    "/generation/{zoneName}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "zoneName",
+          "schema": {
+            "type": "string",
+            "example": "Wohnzimmer"
+          },
+          "required": true,
+          "description": "Name der Zone"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Geräte abrufen",
+        "description": "Geräte aus einer Zone abrufen",
+        "responses": {
+          "200": {
+            "description": "Geräte der Zone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Actuator"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Zone mit diesem Namen konnte nicht gefunden werden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Gerät hinzufügen",
+        "description": "Gerät zu dieser Zone hinzufügen oder ändern",
+        "requestBody": {
+          "description": "Daten des Gerätes",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestDevice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Das Gerät wurde hinzugefügt"
+          },
+          "404": {
+            "description": "Zone konnte nicht gefunden werden"
+          },
+          "406": {
+            "description": "Gerätedaten nicht ausreichend"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Zone ändern",
+        "description": "Informationen einer vorhandenen Zone anpassen",
+        "requestBody": {
+          "description": "neue Informationen der Zone",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Informationen wurde angepasst",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Wohnzimmer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/generation/{zoneName}/{actuatorName}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "zoneName",
+          "schema": {
+            "type": "string",
+            "example": "Wohnzimmer"
+          },
+          "required": true,
+          "description": "Name der Zone"
+        },
+        {
+          "in": "path",
+          "name": "actuatorName",
+          "schema": {
+            "type": "string",
+            "example": "Neonlampe"
+          },
+          "required": true,
+          "description": "Name des Actuators"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Gerät abrufen",
+        "description": "Bestimmtes Gerät aus einer Zone abrufen",
+        "responses": {
+          "200": {
+            "description": "Gerät",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Actuator"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Zone/ Gerät mit diesem Namen konnte nicht gefunden werden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Generation"
+        ],
+        "summary": "Befehl hinzufügen",
+        "description": "Gerät einen Befehl hinzufügen oder vorhandenen Befehl anpassen",
+        "requestBody": {
+          "description": "Daten des Befehls",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Befehl wurde hinzugefügt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Actuator"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Zone/ Gerät konnte nicht gefunden werden"
+          },
+          "406": {
+            "description": "Befehlsdaten nicht ausreichend"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RequestDevice": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Wandlampe"
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Command"
+            }
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "http://192.168.172.66:7000/params.json"
+          }
+        }
+      },
+      "Command": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "http://192.127.23.234:8000/cmnd=on"
+          },
+          "method": {
+            "$ref": "#/components/schemas/Method"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Type"
+          }
+        }
+      },
+      "lightman": {
+        "type": "object",
+        "properties": {
+          "lightscenes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/scene"
+            }
+          },
+          "zone": {
+            "type": "object",
+            "properties": {
+              "zonename": {
+                "type": "string"
+              },
+              "actuators": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/actuator"
+                }
+              }
+            }
+          }
+        }
+      },
+      "actuator": {
+        "type": "object",
+        "properties": {
+          "actuator": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "trust",
+                  "http",
+                  "fs20",
+                  "infrared",
+                  "sonos"
+                ]
+              },
+              "commandlist": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/command"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Actuator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+          },
+          "name": {
+            "type": "string",
+            "example": "Neonleuchte"
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Command"
+            }
+          },
+          "status": {
+            "type": "string",
+            "example": "on"
+          },
+          "zone": {
+            "type": "string",
+            "example": "Wohnzimmer"
+          }
+        }
+      },
+      "command": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "param": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Mapping": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Method": {
+        "type": "string",
+        "enum": [
+          "post",
+          "delete",
+          "put",
+          "patch",
+          "get"
+        ],
+        "example": "get"
+      },
+      "Parameter": {
+        "type": "object",
+        "properties": {
+          "Marker1": {
+            "$ref": "#/components/schemas/State"
+          },
+          "Marker2": {
+            "$ref": "#/components/schemas/State"
+          },
+          "Marker3": {
+            "$ref": "#/components/schemas/State"
+          },
+          "Marker4": {
+            "$ref": "#/components/schemas/State"
+          }
+        }
+      },
+      "scene": {
+        "type": "object",
+        "properties": {
+          "scene": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "param": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "State": {
+        "type": "integer",
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Type": {
+        "type": "string",
+        "enum": [
+          "off",
+          "on",
+          "toggle"
+        ],
+        "example": "on"
+      }
+    }
+  }
+}

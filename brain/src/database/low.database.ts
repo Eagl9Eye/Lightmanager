@@ -26,7 +26,7 @@ class DB {
     await this.db
       .defaults({
         devices: [],
-        parameterOrigin: "http://127.0.0.1:4000/params.json",
+        parameterOrigin: "", // http://127.0.0.1:4000/params.json
         parameterMapping: [],
       })
       .write();
