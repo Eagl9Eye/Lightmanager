@@ -36,6 +36,7 @@
     "@types/express": "^4.17.11",
     "@types/express-xml-bodyparser": "^0.3.2",
     "@types/http-errors": "^1.8.0",
+    "@types/lodash": "^4.14.170",
     "@types/lowdb": "^1.0.10",
     "@types/morgan": "^1.9.2",
     "@types/node": "^15.6.0",

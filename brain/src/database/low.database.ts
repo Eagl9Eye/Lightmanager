@@ -1,8 +1,7 @@
-import { Actuator } from "../@types/actuator";
+import { Zone } from "../@types";
 import { db as config } from "../config";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
-import log from "../util/log";
 
 export interface Mapping {
   id: number;
@@ -10,7 +9,7 @@ export interface Mapping {
 }
 
 export interface Database {
-  devices: Array<Actuator>;
+  configuration: Zone[];
   parameterOrigin: string;
   parameterMapping: Array<Mapping>;
 }
@@ -25,7 +24,7 @@ class DB {
     this.db.read();
     await this.db
       .defaults({
-        devices: [],
+        configuration: [],
         parameterOrigin: "", // http://127.0.0.1:4000/params.json
         parameterMapping: [],
       })

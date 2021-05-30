@@ -136,7 +136,7 @@ paths:
           description: "Marker nicht gefunden"
         "406":
           description: "Name ungültig"
-  /generation:
+  /home:
     get:
       tags:
       - "Generation"
@@ -155,6 +155,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/lightman"
     post:
+      tags:
+      - "Generation"
+      summary: Zone hinzufügen
+      description: Neue Zone hinzufügen
+      requestBody:
+        description: Name der Zone
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Wohnzimmer"
+      responses:
+        "200":
+          description: "Zone hinzugefügt"
+    put:
       tags:
       - "Generation"
       summary: Geräte auslesen
@@ -179,7 +198,7 @@ paths:
           description: "Datei konnte nicht verarbeitet werden"
         "415":
           description: "Kein xml-Format übertragen"
-  /generation/{zoneName}:
+  /home/{zoneName}:
     parameters:
       - in: path
         name: zoneName
@@ -208,7 +227,7 @@ paths:
       tags:
       - "Generation"
       summary: Gerät hinzufügen
-      description: Gerät zu dieser Zone hinzufügen oder ändern
+      description: Gerät zu dieser Zone hinzufügen
       requestBody:
         description: Daten des Gerätes
         required: true
@@ -220,37 +239,46 @@ paths:
         "200":
           description: "Das Gerät wurde hinzugefügt"
         "404":
-          description: "Zone konnte nicht gefunden werden"
+          description: "Zone mit diesem Namen konnte nicht gefunden werden"
         "406":
           description: "Gerätedaten nicht ausreichend"
     put:
       tags:
       - "Generation"
       summary: Zone ändern
-      description: Informationen einer vorhandenen Zone anpassen
+      description: Informationen einer Zone anpassen. Alle Geräte mit dem gleichen ZonenNamen werden auf den neuen Namen angepasst.
       requestBody:
         description: neue Informationen der Zone
         required: true
         content:
           application/json:
             schema:
-              anyOf:
-                - type: object
-                  properties:
-                    name:
-                      type: string
+              type: object
+              properties:
+                name:
+                  type: string
       responses:
         "200":
           description: Informationen wurde angepasst
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    example: "Wohnzimmer"
-  /generation/{zoneName}/{actuatorName}:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Actuator"
+        "404":
+          description: "Zone mit diesem Namen konnte nicht gefunden werden"
+    delete:
+      tags:
+      - "Generation"
+      summary: Zone löschen
+      description: Zone entfernen und alle zugehörigen Geräte entfernen
+      responses:
+        "200":
+          description: Zone entfernt
+        "404":
+          description: Zone nicht gefunden
+  /home/{zoneName}/{actuatorName}:
     parameters:
       - in: path
         name: zoneName
@@ -283,26 +311,41 @@ paths:
     post:
       tags:
       - "Generation"
-      summary: Befehl hinzufügen
-      description: Gerät einen Befehl hinzufügen oder vorhandenen Befehl anpassen
+      summary: Gerät ändern
+      description: Geräteinformationen anpassen
       requestBody:
-        description: Daten des Befehls
+        description: neue Informationen des Gerätes
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Command"
+              anyOf:
+              - type: object
+                properties:
+                  commands:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Command"
+              - type: object
+                properties:
+                  name:
+                    type: string
+                    example: "Wohnzimmer"
       responses:
         "200":
-          description: "Befehl wurde hinzugefügt"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Actuator"
+          description: "Die Geräteinformatioen wurden aktualisiert"
         "404":
-          description: "Zone/ Gerät konnte nicht gefunden werden"
-        "406":
-          description: "Befehlsdaten nicht ausreichend"
+          description: "Gerät konnte nicht gefunden werden"
+    delete:
+      tags:
+      - "Generation"
+      summary: Gerät löschen
+      description: Gerät entfernen
+      responses:
+        "200":
+          description: Gerät entfernt
+        "404":
+          description: Gerät nicht gefunden
 components:
   schemas:
     RequestDevice:

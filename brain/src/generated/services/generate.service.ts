@@ -1,32 +1,65 @@
-import { CRUD } from "../../default/interface/crud.interface";
 import { ActuatorDto } from "../dto/actuator.dto";
+import { Command, Configuration } from "../../@types";
 import {
-  getDevices,
-  createDevice,
-  updateDevice,
-  patchDevice,
-  readDevice,
-  deleteDevice,
+  deleteConfiguration,
+  getZones,
+  createZone,
+  updateZone,
+  deleteZone,
+  getActuators,
+  getActuator,
+  createActuator,
+  changeActuator,
+  deleteActuator,
 } from "../dao/devices.dao";
 
-class GenerateService implements CRUD<ActuatorDto> {
-  async list(limit?: number, page?: number) {
-    return getDevices();
+class GenerateService {
+  async getAll() {
+    return getZones();
   }
-  async create(resource: ActuatorDto) {
-    return createDevice(resource);
+  async getZoneByName(name: string) {
+    return (await getZones({ name: name }))[0];
   }
-  async update(resource: ActuatorDto) {
-    return updateDevice(resource);
+  async createZone(name: string) {
+    return createZone(name);
   }
-  async patch(resource: ActuatorDto) {
-    return patchDevice(resource);
+  async updateZone(id: string, name: string) {
+    return updateZone(id, name);
   }
-  async readById(resourceId: string) {
-    return readDevice(resourceId);
+  async deleteZone(id: string) {
+    return deleteZone(id);
   }
-  async deleteById(resourceId: string) {
-    return deleteDevice(resourceId);
+  async getActuators(id: string) {
+    return getActuators(id);
+  }
+  async getActuator(zoneId: string, actuatorId: string) {
+    return getActuator(zoneId, actuatorId);
+  }
+  async getActuatorByName(id: string, name: string) {
+    return (await getActuators(id, name))[0];
+  }
+  async createActuator(id: string, actuator: ActuatorDto) {
+    return createActuator(id, actuator);
+  }
+  async changeActuator(
+    zoneId: string,
+    actuatorId: string,
+    changes: { name?: string; commands?: Command[] }
+  ) {
+    return changeActuator(zoneId, actuatorId, changes);
+  }
+  async deleteActuator(zoneId: string, actuatorId: string) {
+    return deleteActuator(zoneId, actuatorId);
+  }
+  async overwrite(configuration: Configuration.Lightman) {
+    deleteConfiguration();
+    configuration.zones.forEach((zone) => {
+      createZone(zone.name).then((createdZone) =>
+        zone.actuators.forEach((device) =>
+          createActuator(createdZone[createdZone.length - 1].id, device.toActuator())
+        )
+      );
+    });
   }
 }
 

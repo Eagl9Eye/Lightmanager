@@ -1,39 +1,43 @@
 import { Router } from "express";
 import {
-  extractZoneName,
-  extractActuatorName,
-  validateConfiguration,
-  validateZoneName,
-  validateActuatorName,
+  processConfiguration,
+  processZoneName,
+  processActuatorName,
+  validateActuator,
+  processActuator,
 } from "./middleware/generated.middleware";
 import {
-  listDevices,
+  viewAll,
   loadConfiguration,
   viewActuators,
   addActuator,
-  changeZone,
   viewActuator,
   changeActuator,
+  deleteActuator,
+  changeZone,
+  createZone,
+  deleteZone,
 } from "./controller/generate.controller";
 const router: Router = Router();
 
-router.param("zoneName", extractZoneName);
-router.param("actuatorName", extractActuatorName);
+router.param("zoneName", processZoneName);
+router.param("actuatorName", processActuatorName);
 
 router
-  .route("/generated")
-  .get(listDevices)
-  .post(validateConfiguration, loadConfiguration);
+  .route("/home")
+  .get(viewAll)
+  .post(createZone)
+  .put(processConfiguration, loadConfiguration);
 router
-  .route("/generated/:zoneName")
-  .all(validateZoneName)
+  .route("/home/:zoneName")
   .get(viewActuators)
-  .post(addActuator)
-  .put(changeZone);
+  .post(validateActuator, processActuator, addActuator)
+  .put(changeZone)
+  .delete(deleteZone);
 router
-  .route("/generated/:zoneName/:actuatorName")
-  .all(validateActuatorName)
+  .route("/home/:zoneName/:actuatorName")
   .get(viewActuator)
-  .put(changeActuator);
+  .post(changeActuator)
+  .delete(deleteActuator);
 
 export default router;

@@ -1,4 +1,4 @@
-import { HttpMethod } from "../../@types/actuator";
+import { HttpMethod } from "../../@types";
 
 export interface AddressDto {
   address: string;

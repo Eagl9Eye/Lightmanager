@@ -1,10 +1,14 @@
-import { CommandType, HttpMethod } from "../../@types/actuator";
+import { CommandType, HttpMethod } from "../../@types";
 
 export interface ActuatorDto {
-  id: string;
-  address: string;
+  commands: CommandDto[];
+  name: string;
+  id?: string;
+  status?: 1 | 0;
+}
+export interface CommandDto {
   method: HttpMethod;
-  commands: CommandType[];
-  name?: string;
-  zone?: string;
+  type: CommandType;
+  address: string;
+  alias?: string;
 }
