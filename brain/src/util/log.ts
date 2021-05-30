@@ -1,5 +1,7 @@
-const { format, transports, createLogger } = require("winston");
+import winston, { format, transports, createLogger } from "winston";
+const { consoleFormat } = require("winston-console-format");
 const {
+  errors,
   printf,
   combine,
   padLevels,
@@ -9,18 +11,15 @@ const {
   prettyPrint,
   align,
 } = format;
-const { consoleFormat } = require("winston-console-format");
-const ignore = format((info, opts) => {
-  if (info.private) {
-    return false;
-  }
+const ignore = format((info) => {
+  if (info.private) return false;
   return info;
 });
-const getLabel = (module) => {
+const getLabel = (module: NodeModule) => {
   return module.filename;
 };
 
-const getOptions = (module) => {
+const getOptions = (module: NodeModule) => {
   return {
     format: combine(ignore(), timestamp(), prettyPrint()),
     transports: [
@@ -29,6 +28,7 @@ const getOptions = (module) => {
         format: combine(
           colorize({ all: true }),
           align(),
+          errors({ stack: true }),
           padLevels(),
           consoleFormat({
             showMeta: true,
@@ -45,7 +45,7 @@ const getOptions = (module) => {
       }),
       new transports.File({
         filename: `../log/debug.${new Date().toISOString().split("T")[0]}.log`,
-        level: "debug",
+        level: "info",
         format: combine(
           label({ label: getLabel(module) }),
           printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
@@ -54,22 +54,22 @@ const getOptions = (module) => {
     ],
     exceptionHandlers: [
       new transports.File({
-        filename: `../log/exceptions.${
-          new Date().toISOString().split("T")[0]
-        }.log`,
+        filename: `../log/exceptions.${new Date().toISOString().split("T")[0]}.log`,
       }),
     ],
   };
 };
 
-const logger = (module) => {
-  return createLogger(getOptions(module));
-};
+const logger = createLogger(getOptions(module));
 
 if (process.env.NODE_ENV !== "production") {
-  logger(module).debug({
+  logger.debug({
     message: "Logging initialized at debug level",
   });
 }
 
-module.exports = logger;
+export const logMapElements = (log: winston.Logger) => (value: any, key: any) => {
+  log.debug(`m[${key}] = ${value}`);
+};
+
+export default logger;
