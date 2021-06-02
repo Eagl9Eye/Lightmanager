@@ -1,4 +1,4 @@
-import { Footer, Header } from "../components";
+import { Footer, Header } from ".";
 import { Container } from "semantic-ui-react";
 
 const Page = ({ children }) => {
