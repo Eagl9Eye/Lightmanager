@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import addressService from "../service/address.service";
 import mappingService from "../service/mapping.service";
 import { Parameter } from "../../@types";
-import log from "../../util/log";
+import { logger } from "../../index";
 import { toObj } from "../../util/converter";
 import fetch from "node-fetch";
 
@@ -11,7 +11,7 @@ export async function viewParameter(req: Request, res: Response) {
     .then((params: Parameter) => applyMapping(params))
     .then((map) => res.status(200).json(toObj(map)))
     .catch((error) => {
-      log.error(error.stack);
+      logger.error(error.stack);
       res.sendStatus(404);
     });
 }
@@ -20,7 +20,7 @@ export async function viewParameterByName(req: Request, res: Response) {
     .then((params: Parameter) => applyMapping(params))
     .then((map) => res.status(200).json(map.get(req.body.name)))
     .catch((error) => {
-      log.error(error.stack);
+      logger.error(error.stack);
       res.sendStatus(404);
     });
 }
@@ -53,7 +53,7 @@ const fetchParams = async () => {
 
 const applyMapping = async (parameter: Parameter) => {
   const mapping = await mappingService.getMapping();
-  log.debug(mapping);
+  logger.debug(mapping);
   return new Map<string, string>(
     parameter.marker
       .split("")

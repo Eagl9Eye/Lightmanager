@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import db from "../../database/low.database";
 import { Command, Zone } from "../../@types";
 import { ListIterateeCustom } from "lodash";
-import log from "../../util/log";
+import { logger } from "../../index";
 
 // All
 export async function deleteConfiguration() {
@@ -14,7 +14,7 @@ export async function getZones(predicate?: ListIterateeCustom<Zone, boolean>) {
   return db.get("configuration").filter(predicate).value();
 }
 export async function createZone(name: string) {
-  log.info(`Zone (${name}) hinzugefügt`);
+  logger.info(`Zone (${name}) hinzugefügt`);
   return db.get("configuration").push({ id: uuid(), name: name, actuators: [] }).write();
 }
 export async function updateZone(id: string, name: string) {
