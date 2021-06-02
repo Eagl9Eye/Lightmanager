@@ -1,0 +1,21 @@
+.footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.backButton {
+  cursor: pointer;
+  filter: grayscale(100%);
+  transition: filter 0.1s ease;
+  margin-bottom: 20px !important;
+  margin-top: -3rem !important;
+}
+.backButton:hover {
+  filter: grayscale(0%);
+}
