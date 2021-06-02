@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import service from "../services/generate.service";
-import log from "../../util/log";
+import { logger } from "../../index";
 
 /**
  * List all stored Acutators
@@ -16,7 +16,7 @@ export async function viewAll(req: Request, res: Response) {
  * @param res Response
  */
 export async function loadConfiguration(req: Request, res: Response) {
-  log.info(req.body.lightman);
+  logger.info(req.body.lightman);
   res.status(200).json(await service.overwrite(req.body.lightman));
   // datei konnte nicht verarbeitet werden fehler verarbeiten
 }
