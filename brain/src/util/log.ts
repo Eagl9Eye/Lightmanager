@@ -1,13 +1,15 @@
+import { Server } from "http";
 import winston, { format, transports, createLogger } from "winston";
+import SocketIO from "./transport/SocketIO";
 const { consoleFormat } = require("winston-console-format");
 const {
   errors,
-  printf,
   combine,
   padLevels,
   colorize,
   timestamp,
   label,
+  json,
   prettyPrint,
   align,
 } = format;
@@ -19,10 +21,11 @@ const getLabel = (module: NodeModule) => {
   return module.filename;
 };
 
-const getOptions = (module: NodeModule) => {
+const getOptions = (server: Server, module: NodeModule) => {
   return {
     format: combine(ignore(), timestamp(), prettyPrint()),
     transports: [
+      new SocketIO(server, { level: "silly", format: combine(json()) }),
       new transports.Console({
         level: process.env.NODE_ENV === "production" ? "error" : "debug",
         format: combine(
@@ -45,11 +48,8 @@ const getOptions = (module: NodeModule) => {
       }),
       new transports.File({
         filename: `../log/debug.${new Date().toISOString().split("T")[0]}.log`,
-        level: "info",
-        format: combine(
-          label({ label: getLabel(module) }),
-          printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
-        ),
+        level: "silly",
+        format: combine(label({ label: getLabel(module) }), json()),
       }),
     ],
     exceptionHandlers: [
@@ -59,17 +59,11 @@ const getOptions = (module: NodeModule) => {
     ],
   };
 };
+const logger = (server: Server) => createLogger(getOptions(server, module));
 
-const logger = createLogger(getOptions(module));
-
-if (process.env.NODE_ENV !== "production") {
-  logger.debug({
-    message: "Logging initialized at debug level",
-  });
-}
-
-export const logMapElements = (log: winston.Logger) => (value: any, key: any) => {
+const logMapElements = (log: winston.Logger) => (value: any, key: any) => {
   log.debug(`m[${key}] = ${value}`);
 };
 
+export { logMapElements };
 export default logger;

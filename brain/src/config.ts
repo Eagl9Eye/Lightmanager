@@ -6,4 +6,4 @@ dotenv.config({
 });
 
 export const port = process.env.PORT || 9000;
-export const db = { name: process.env.db || "./res/db.json" };
+export const db = { name: process.env.DB_PATH || "./res/db.json" };

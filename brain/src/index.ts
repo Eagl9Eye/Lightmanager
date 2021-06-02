@@ -10,11 +10,13 @@ import defaultRouter from "./default/default.routes.config";
 import parameterRouter from "./parameter/parameter.routes.config";
 import generatedRouter from "./generated/generated.routes.config";
 import log from "./util/log";
+import { Logger } from "winston";
 import { Server, createServer } from "http";
 import { port } from "./config";
 
 const app = express();
 const server: Server = createServer(app);
+const logger: Logger = log(server);
 app.use(cors());
 app.use(morganMiddleware);
 app.use(express.json());
@@ -31,6 +33,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 // error handler
 app.use(defaultErrorMiddleware);
-server.listen(port, () => log.info(`Server running at http://localhost:${port}`));
+server.listen(port, () => logger.info(`Server running at http://localhost:${port}`));
 
-module.exports = app;
+export { logger };
+export default app;
