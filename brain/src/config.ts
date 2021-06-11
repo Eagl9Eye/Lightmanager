@@ -6,4 +6,5 @@ dotenv.config({
 });
 
 export const port = process.env.PORT || 9000;
+export const host = process.env.HOST || "http://localhost";
 export const db = { name: process.env.DB_PATH || "./res/db.json" };

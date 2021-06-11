@@ -12,7 +12,7 @@ const skip = (req: IncomingMessage, res: ServerResponse) => {
 morgan.token("body", (req: Request, res: Response) => JSON.stringify(req.body));
 
 const morganMiddleware = morgan(
-  ":method :url :status :body :res[content-length] :response-time ms",
+  ":remote-addr :method :url :status :body :res[content-length] :response-time ms",
   { stream, skip }
 );
 

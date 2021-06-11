@@ -4,108 +4,137 @@ import {
   Icon,
   Segment,
   Input,
-  Grid,
   Label,
-  Message,
+  Table,
+  SemanticCOLORS,
 } from "semantic-ui-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { getAllEnumKeys } from "../util/enum";
+import dateFormat from "dateformat";
+import useLog from "../util/useLog";
+import { Level, LoggingResponse, LevelType } from "../types/log";
+import Http from "./http";
 
-enum Level {
-  Error = "Error",
-  Warn = "Warn",
-  Info = "Info",
-  Http = "Http",
-  Verbose = "Verbose",
-  Debug = "Debug",
-  Silly = "Silly",
-}
-type LevelType = keyof typeof Level;
+const colorMapping = {
+  error: "red" as SemanticCOLORS,
+  warn: "orange" as SemanticCOLORS,
+  info: "olive" as SemanticCOLORS,
+  http: "green" as SemanticCOLORS,
+  verbose: "grey" as SemanticCOLORS,
+  debug: "blue" as SemanticCOLORS,
+  silly: "purple" as SemanticCOLORS,
+};
 
 interface LoggingProps {
   initialFilter?: LevelType[];
 }
 
-const Page: FC<LoggingProps> = ({
-  initialFilter = [Level.Warn, Level.Http, Level.Info],
-}) => {
-  const [filter, updateFilter] = useState(initialFilter);
-  const removeFilter = (item) => {
-    updateFilter(filter.filter((level) => level !== item));
+const Page: FC<LoggingProps> = ({ initialFilter = ["warn", "http", "info"] }) => {
+  const { messages } = useLog();
+  const [filter, setFilter] = useState(initialFilter);
+  const [sorter, setSorter] = useState<"DESC" | "ASC">("DESC");
+  /*const [link, setLink] = useState("");
+  const makeDumpFile = () => {
+    const data = new File([JSON.stringify(lines)], "Log.dmp", { type: "text/plain" });
+    if (link !== "") window.URL.revokeObjectURL(link);
+    setLink(window.URL.createObjectURL(data));
+  };*/
+
+  const removeFilter = (item: LevelType) => {
+    setFilter(filter.filter((level) => level !== item));
   };
-  const addFilter = (item) => {
-    filter.push(item);
+
+  const addFilter = (level: LevelType) => {
+    setFilter(filter.find((item) => item === level) ? filter : [...filter, level]);
   };
-  useEffect(() => {}, [filter]);
+
   return (
     <div>
       <Menu attached="top">
-        <Dropdown item icon="wrench" simple>
+        <Dropdown item icon="filter" labeled simple>
           <Dropdown.Menu>
-            <Dropdown.Item>
-              <Icon name="dropdown" />
-              <span className="text">Filter</span>
-
-              <Dropdown.Menu>
-                {getAllEnumKeys(Level).map((level) => (
-                  <Dropdown.Item onClick={(e, { level }) => addFilter(level)}>
-                    {level}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown.Item>
-            <Dropdown.Item>Open</Dropdown.Item>
-            <Dropdown.Item>Save...</Dropdown.Item>
-            <Dropdown.Item>Edit Permissions</Dropdown.Item>
+            <Dropdown.Header icon="tags" content="Typen" />
             <Dropdown.Divider />
-            <Dropdown.Header>Export</Dropdown.Header>
-            <Dropdown.Item>Share</Dropdown.Item>
+            {getAllEnumKeys(Level).map((level) => (
+              <Dropdown.Item
+                key={level}
+                level={level}
+                value={level}
+                text={level}
+                label={{ empty: true, color: colorMapping[level], circular: true }}
+                onClick={(e, data) => addFilter(data.level)}
+              />
+            ))}
+            <Dropdown.Divider />
+            <Dropdown.Item>Download</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <Menu.Item>
+        <Menu.Item fitted="vertically">
           <Label.Group color="blue">
-            {filter.map((item) => (
-              <Label onClick={(e, { level }) => removeFilter(level)}>
-                {item}
-                <Icon as="a" name="close" />
+            {filter.map((level) => (
+              <Label
+                as="a"
+                key={level}
+                level={level}
+                onClick={(e, data) => removeFilter(data.level)}
+              >
+                {level}
+                <Icon name="close" />
               </Label>
             ))}
           </Label.Group>
         </Menu.Item>
         <Menu.Item position="right">
-          <Input placeholder="Search..." action={{ type: "submit", content: "Go" }} />
+          <Input placeholder="Suchen..." action={{ type: "submit", content: "Los" }} />
         </Menu.Item>
       </Menu>
-      <Segment attached="bottom" secondary style={{ height: 200 }}>
-        <Grid columns="equal" divided="vertically">
-          <Grid.Row verticalAlign="middle">
-            <Grid.Column>
-              <Label color="red" horizontal ribbon>
-                Error
-              </Label>
-            </Grid.Column>
-            <Grid.Column width={11}>
-              <Message info>
-                <Message.Header>12 Years a Slave</Message.Header>
-              </Message>
-            </Grid.Column>
-            <Grid.Column width={4} floated="right">
-              19.23.2021 15:34
-            </Grid.Column>
-          </Grid.Row>
-
-          <Grid.Row>
-            <Grid.Column>
-              <Label color="green" horizontal>
-                Info
-              </Label>
-            </Grid.Column>
-            <Grid.Column width={10}>Eine Nachricht</Grid.Column>
-            <Grid.Column width={4} floated="right">
-              19.23.2021 15:34
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+      <Segment
+        attached="bottom"
+        secondary
+        style={{ overflow: "scroll", overflowX: "hidden", height: 500 }}
+      >
+        <Table basic="very" sortable padded striped>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Typ</Table.HeaderCell>
+              <Table.HeaderCell>Beschreibung</Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={sorter === "DESC" ? "descending" : "ascending"}
+                onClick={() => setSorter(sorter === "DESC" ? "ASC" : "DESC")}
+              >
+                Zeitpunkt
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {messages
+              .filter((line: LoggingResponse) => filter.includes(line.level))
+              .sort((a, b) =>
+                sorter === "DESC"
+                  ? Date.parse(b.timestamp) - Date.parse(a.timestamp)
+                  : Date.parse(a.timestamp) - Date.parse(b.timestamp)
+              )
+              .map((line: LoggingResponse, i: number) => {
+                return (
+                  <Table.Row key={i}>
+                    <Table.Cell collapsing textAlign="left">
+                      <Label color={colorMapping[line.level]}>{line.level}</Label>
+                    </Table.Cell>
+                    <Table.Cell className={"preWrap"}>
+                      {line.level === "http" ? (
+                        <Http value={line.message} />
+                      ) : (
+                        line.message
+                      )}
+                    </Table.Cell>
+                    <Table.Cell collapsing textAlign="right">
+                      {dateFormat(line.timestamp, "H:MM:ss, dddd, mmmm dS")}
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+          </Table.Body>
+        </Table>
       </Segment>
     </div>
   );

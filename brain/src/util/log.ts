@@ -47,7 +47,7 @@ const getOptions = (server: Server, module: NodeModule) => {
         ),
       }),
       new transports.File({
-        filename: `../log/debug.${new Date().toISOString().split("T")[0]}.log`,
+        filename: `../log/debug.${new Date().getMonth()}.log`,
         level: "silly",
         format: combine(label({ label: getLabel(module) }), json()),
       }),

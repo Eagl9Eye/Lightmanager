@@ -5,9 +5,7 @@ const Page = ({ children }) => {
   return (
     <div>
       <Header></Header>
-      <Container text style={{ marginTop: "2em", minHeight: "100vh" }}>
-        {children}
-      </Container>
+      <Container style={{ marginTop: "2em", minHeight: "100vh" }}>{children}</Container>
       <Footer></Footer>
     </div>
   );

@@ -1,17 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import mappingService from "../service/mapping.service";
 import fetch from "node-fetch";
-import log from "../../util/log";
+import { logger } from "../../index";
 
 export async function validateMarker(req: Request, res: Response, next: NextFunction) {
   if (req.body.id <= 64 && req.body.id >= 0) next();
   else res.sendStatus(406);
 }
 export async function validateOrigin(req: Request, res: Response, next: NextFunction) {
+  logger.debug("Parameter.json Adresse ändern", req.body.address);
   fetch(req.body.address)
     .then((response) => response.json())
     .then((json) => next())
-    .catch((error) => res.sendStatus(404));
+    .catch((error) => {
+      logger.error(error.stack);
+      res.sendStatus(404);
+    });
 }
 export async function validateMarkerName(
   req: Request,
