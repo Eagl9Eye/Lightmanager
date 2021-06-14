@@ -1,3 +1,4 @@
+import { host } from "../../config";
 import { Server } from "http";
 import { Socket } from "socket.io";
 import Transport from "winston-transport";
@@ -9,19 +10,26 @@ class SocketIO extends Transport {
     super(opts);
     const options = {
       from: getLastMonth(),
-      fields: ["message", "level", "timestamp"],
+      fields: ["message", "level", "timestamp"], // filter ueberarbeiten
     };
-    this.io = require("socket.io")(server);
+    this.io = require("socket.io")(server, {
+      cors: {
+        origin: `${host}:3000`,
+        methods: ["GET", "POST"],
+        allowedHeaders: ["log"],
+        credentials: true,
+      },
+    });
     this.io.on("connection", (socket) => {
-      logger.silly("Log-Session established");
+      logger.info("Log-Session established");
       logger.query(options, function (err, results) {
         if (err) {
           throw err;
         }
-        socket.emit("log", results);
+        socket.emit("logged-before", results);
       });
       socket.on("disconnect", () => {
-        logger.silly("Log-Session closed");
+        logger.info("Log-Session closed");
       });
     });
   }

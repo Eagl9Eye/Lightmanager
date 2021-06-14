@@ -13,10 +13,13 @@ import log from "./util/log";
 import { Logger } from "winston";
 import { Server, createServer } from "http";
 import { port } from "./config";
+import publicIP from "public-ip";
+import internalIP from "internal-ip";
 
 const app = express();
 const server: Server = createServer(app);
 const logger: Logger = log(server);
+app.enable("trust proxy");
 app.use(cors());
 app.use(morganMiddleware);
 app.use(express.json());
@@ -33,7 +36,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 // error handler
 app.use(defaultErrorMiddleware);
-server.listen(port, () => logger.info(`Server running at http://localhost:${port}`));
+server.listen(port, async () =>
+  logger.info(
+    `Server running at:\n\thttp://${await publicIP.v4()}:${port}\n\thttp://${await internalIP.v4()}:${port}`
+  )
+);
 
 export { logger };
 export default app;
