@@ -27,6 +27,7 @@ const getOptions = (server: Server, module: NodeModule) => {
     transports: [
       new SocketIO(server, { level: "silly", format: combine(json()) }),
       new transports.Console({
+        handleExceptions: true,
         level: process.env.NODE_ENV === "production" ? "error" : "debug",
         format: combine(
           colorize({ all: true }),

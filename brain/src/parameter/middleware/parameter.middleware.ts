@@ -22,7 +22,7 @@ export async function validateMarkerName(
   res: Response,
   next: NextFunction
 ) {
-  if (await mappingService.getByName(req.body.name)) next();
+  if ((await mappingService.getByName(req.body.name)) != null) next();
   else res.sendStatus(404);
 }
 export async function validateNewMarkerName(

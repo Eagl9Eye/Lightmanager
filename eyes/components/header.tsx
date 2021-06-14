@@ -14,7 +14,12 @@ const Header = () => {
             <Image size="small" src="/logo.png" style={{ marginRight: "1.5em" }} />
             Sunrise Lightprocessor
           </Menu.Item>
-          <Menu.Item as="a">Geräte</Menu.Item>
+          <Menu.Item as="a" href="/mapping">
+            Parameterliste
+          </Menu.Item>
+          <Menu.Item as="a" href="/zone">
+            Zonen
+          </Menu.Item>
           <Menu.Item position="right">
             <Input
               className="icon"

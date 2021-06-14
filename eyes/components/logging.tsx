@@ -11,7 +11,7 @@ import {
 import { FC, useState } from "react";
 import { getAllEnumKeys } from "../util/enum";
 import dateFormat from "dateformat";
-import useLog from "../util/useLog";
+import useLog from "../communication/useLog";
 import { Level, LoggingResponse, LevelType } from "../types/log";
 import Http from "./http";
 

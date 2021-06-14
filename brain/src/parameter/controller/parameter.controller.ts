@@ -4,6 +4,7 @@ import mappingService from "../service/mapping.service";
 import { Parameter } from "../../@types";
 import { logger } from "../../index";
 import { toObj } from "../../util/converter";
+import { defaultPrefix } from "../../config";
 import fetch from "node-fetch";
 
 export async function viewParameter(req: Request, res: Response) {
@@ -53,12 +54,11 @@ const fetchParams = async () => {
 
 const applyMapping = async (parameter: Parameter) => {
   const mapping = await mappingService.getMapping();
-  logger.debug(mapping);
   return new Map<string, string>(
     parameter.marker
       .split("")
       .map((value, index) => [
-        mapping.find((entry) => entry.id === index)?.name || `Marker${index}`,
+        mapping.find((entry) => entry.id === index)?.name || `${defaultPrefix}${index}`,
         value,
       ])
   );
